@@ -1,0 +1,8 @@
+{
+  "name": "spotify-music",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "sizukutamago",
+  "license": "MIT",
+  "private": true
+}
