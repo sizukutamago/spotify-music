@@ -22,6 +22,7 @@
     "bk:start": "yarn workspace backend start:dev",
     "fr:lint": "eslint --fix --ext .jsx,.js,.tsx,.ts ./frontend/src",
     "bk:lint": "eslint --fix --ext .jsx,.js,.tsx,.ts ./backend/src",
-    "lint": "yarn fr:lint && yarn bk:lint"
+    "lint": "yarn fr:lint && yarn bk:lint",
+    "prettier": "prettier --write \"./**/*.{js,jsx,ts,css}\""
   }
 }
