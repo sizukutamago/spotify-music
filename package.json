@@ -5,5 +5,11 @@
   "author": "sizukutamago",
   "license": "MIT",
   "private": true,
-  "workspaces": ["backend", "frontend"]
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
 }
