@@ -1,1 +1,6 @@
-<a class="mr-6" href="https://accounts.spotify.com/authorize?client_id=c48c47f5403e4409bcfe36f3c117d852&response_type=code&redirect_uri=http://localhost:4200/player/callback&state=aaa">spotify login</a>
+<ng-container *ngIf="!auth.isAuthenticated()">
+  <a class="mr-6" href="https://accounts.spotify.com/authorize?client_id=c48c47f5403e4409bcfe36f3c117d852&response_type=code&redirect_uri=http://localhost:4200/player/callback&state=aaa">spotify login</a>
+</ng-container>
+<ng-container *ngIf="auth.isAuthenticated()">
+  <button (click)="auth.logout()">logout</button>
+</ng-container>

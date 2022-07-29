@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../service/auth.service';
 
 @Component({
   selector: 'app-player',
@@ -8,22 +9,26 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./player.component.css'],
 })
 export class PlayerComponent implements OnInit {
-  constructor(private router: ActivatedRoute, private http: HttpClient) {}
+  constructor(
+    private router: ActivatedRoute,
+    private http: HttpClient,
+    public auth: AuthService,
+  ) {}
 
   ngOnInit(): void {
     this.router.url.subscribe((url) => {
       if (url.length === 2) {
         const code = this.router.snapshot.queryParamMap.get('code') || '';
-        this.auth(code);
+        this.getAccessToken(code);
       }
     });
   }
 
-  auth(code: string) {
+  getAccessToken(code: string) {
     this.http
-      .post('http://localhost:3000/spotify', { code })
+      .post<{ access_token: string }>('http://localhost:3000/spotify', { code })
       .subscribe((response) => {
-        console.log(response);
+        this.auth.login(response.access_token);
       });
   }
 }
