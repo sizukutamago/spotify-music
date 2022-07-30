@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../service/auth.service';
 
 declare global {
@@ -136,5 +136,44 @@ export class PlayerComponent implements OnInit {
       console.log('Currently Playing', current_track);
       console.log('Playing Next', next_track);
     });
+
+    this.search();
+  }
+
+  search() {
+    this.http
+      .get(
+        'https://api.spotify.com/v1/search?type=album&include_external=audio&q=peko&market=JP',
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.auth.getAccessToken(),
+          }),
+        },
+      )
+      .subscribe((response) => {
+        console.log(response);
+        this.add();
+      });
+  }
+
+  add() {
+    this.http
+      .put(
+        'https://api.spotify.com/v1/me/player/play?device_id=' + this.deviceId,
+        {
+          deviceId: this.deviceId,
+          context_uri: 'spotify:album:5bYaxMZZzDx6bTQajJJ0Mn',
+        },
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.auth.getAccessToken(),
+          }),
+        },
+      )
+      .subscribe((response) => {
+        console.log(response);
+      });
   }
 }
