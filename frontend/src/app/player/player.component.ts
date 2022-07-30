@@ -24,6 +24,11 @@ export class PlayerComponent implements OnInit {
   // @ts-ignore
   private state: Spotify.PlaybackState;
 
+  public searchText = '';
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  public searchItems: [{ name: string; uri: string }] = [];
+
   constructor(
     private router: ActivatedRoute,
     private http: HttpClient,
@@ -32,13 +37,18 @@ export class PlayerComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.url.subscribe(() => {
-      const queries = this.router.snapshot.fragment?.split('=');
-      if (!queries?.includes('access_token')) {
+      const queries = this.router.snapshot.fragment?.split('&');
+
+      const accessTokenQuery = queries?.find((query) => {
+        return query.indexOf('access_token') !== -1;
+      });
+
+      if (!accessTokenQuery) {
         return;
       }
 
-      // const code = this.router.snapshot.fragment?.split('=')[1] as string;
-      const accessToken = '';
+      const accessTokenParam = accessTokenQuery.split('=');
+      const accessToken = accessTokenParam[1];
       this.auth.login(accessToken);
       this.addSpotifyPlaybackSdk();
 
@@ -76,24 +86,6 @@ export class PlayerComponent implements OnInit {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.player.addListener('initialization_error', ({ message }) => {
-        console.error(message);
-      });
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.player.addListener('authentication_error', ({ message }) => {
-        console.error(message);
-      });
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.player.addListener('account_error', ({ message }) => {
-        console.error(message);
-      });
-
       // Ready
       this.player.addListener('ready', (data: any) => {
         console.log('Ready with Device ID', data.device_id);
@@ -103,47 +95,13 @@ export class PlayerComponent implements OnInit {
       this.player.connect().then((res: any) => {
         console.log({ res });
       });
-
-      this.player.addListener('player_state_changed', (state: any) => {
-        console.log({ state });
-        if (
-          this.state &&
-          state.track_window.previous_tracks.find(
-            (x: any) => x.id === state.track_window.current_track.id,
-          ) &&
-          !this.state.paused &&
-          state.paused
-        ) {
-          console.log('Track ended');
-        }
-        this.state = state;
-      });
     };
-  }
-
-  play() {
-    console.log(this.player.togglePlay());
-
-    this.player.getCurrentState().then((state: any) => {
-      if (!state) {
-        console.error('User is not playing music through the Web Playback SDK');
-        return;
-      }
-
-      const current_track = state.track_window.current_track;
-      const next_track = state.track_window.next_tracks[0];
-
-      console.log('Currently Playing', current_track);
-      console.log('Playing Next', next_track);
-    });
-
-    this.search();
   }
 
   search() {
     this.http
       .get(
-        'https://api.spotify.com/v1/search?type=album&include_external=audio&q=peko&market=JP',
+        `https://api.spotify.com/v1/search?type=album&include_external=audio&q=${this.searchText}&market=JP`,
         {
           headers: new HttpHeaders({
             'Content-Type': 'application/json',
@@ -151,19 +109,18 @@ export class PlayerComponent implements OnInit {
           }),
         },
       )
-      .subscribe((response) => {
-        console.log(response);
-        this.add();
+      .subscribe((response: any) => {
+        this.searchItems = response.albums.items;
       });
   }
 
-  add() {
+  play(uri: string) {
     this.http
       .put(
         'https://api.spotify.com/v1/me/player/play?device_id=' + this.deviceId,
         {
           deviceId: this.deviceId,
-          context_uri: 'spotify:album:5bYaxMZZzDx6bTQajJJ0Mn',
+          context_uri: uri,
         },
         {
           headers: new HttpHeaders({

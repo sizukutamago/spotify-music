@@ -3,5 +3,9 @@
 </ng-container>
 <ng-container *ngIf="auth.isAuthenticated()">
   <button (click)="auth.logout()">logout</button>
-  <button (click)="play()">play</button>
+
+  <input type="text" [(ngModel)]="searchText"> <button (click)="search()">search</button>
+  <ul>
+    <li *ngFor="let item of searchItems" ><button (click)="play(item.uri)">{{item.name}}</button></li>
+  </ul>
 </ng-container>
