@@ -25,6 +25,6 @@
     "bk:lint": "eslint --fix --ext .jsx,.js,.tsx,.ts ./backend/src",
     "lint": "yarn fr:lint && yarn bk:lint",
     "prettier": "prettier --write \"./**/*.{js,jsx,ts,css}\"",
-    "build": "yarn workspaces frontend run build"
+    "heroku-postbuild": "yarn workspace frontend build"
   }
 }
