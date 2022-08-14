@@ -6,19 +6,22 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   private accessToken: string | null;
 
+  EXPIRE_AT = 'expire_at';
+  ACCESS_TOKEN = 'access_token';
+
   constructor() {
     this.accessToken = this.getAccessToken();
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
+    return localStorage.getItem(this.ACCESS_TOKEN);
   }
 
   saveAccessToken(accessToken: string): void {
-    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem(this.ACCESS_TOKEN, accessToken);
     const now = new Date();
     const expire = now.setMinutes(now.getMinutes() + 30);
-    localStorage.setItem('expire_at', expire.toString());
+    localStorage.setItem(this.EXPIRE_AT, expire.toString());
   }
 
   login(accessToken: string) {
@@ -27,7 +30,8 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem(this.ACCESS_TOKEN);
+    localStorage.removeItem(this.EXPIRE_AT);
     this.accessToken = null;
   }
 
@@ -36,7 +40,7 @@ export class AuthService {
       return false;
     }
 
-    const expire = localStorage.getItem('expire_at');
+    const expire = localStorage.getItem(this.EXPIRE_AT);
     if (!expire) {
       return false;
     }
