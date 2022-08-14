@@ -26,7 +26,19 @@ export class PlayerComponent implements OnInit {
   public searchText = '';
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  public searchItems: [{ name: string; uri: string }] = [];
+  public searchItems: [
+    { name: string; uri: string; images: { url: string }[] },
+  ] = [];
+
+  public playMusic = false;
+
+  public volume = 50;
+
+  private position_ms = 0;
+
+  public playing = false;
+
+  private playingUrl = '';
 
   constructor(private http: HttpClient, public auth: AuthService) {}
 
@@ -65,39 +77,82 @@ export class PlayerComponent implements OnInit {
     };
   }
 
+  put(url: string, body: object) {
+    return this.http.put(url, body, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.auth.getAccessToken(),
+      }),
+    });
+  }
+
+  get(url: string) {
+    return this.http.get(url, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.auth.getAccessToken(),
+      }),
+    });
+  }
+
   search() {
-    this.http
-      .get(
-        `https://api.spotify.com/v1/search?type=album&include_external=audio&q=${this.searchText}&market=JP`,
-        {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + this.auth.getAccessToken(),
-          }),
-        },
-      )
-      .subscribe((response: any) => {
-        this.searchItems = response.albums.items;
+    this.get(
+      `https://api.spotify.com/v1/search?type=album&include_external=audio&q=${this.searchText}&market=JP`,
+    ).subscribe((response: any) => {
+      console.log(response);
+      this.searchItems = response.albums.items;
+    });
+  }
+
+  pause() {
+    if (this.playing) {
+      this.put(
+        `https://api.spotify.com/v1/me/player/pause?device_id=${this.deviceId}`,
+        {},
+      ).subscribe((response) => {
+        console.log('ss');
+        this.playing = false;
       });
+
+      this.get(`https://api.spotify.com/v1/me/player?market=JP`).subscribe(
+        (res: any) => {
+          this.position_ms = res.progress_ms;
+        },
+      );
+    } else {
+      this.put(
+        `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
+        {
+          position_ms: this.position_ms,
+          context_uri: this.playingUrl,
+        },
+      ).subscribe((res) => {
+        console.log('res');
+      });
+      this.playing = true;
+    }
   }
 
   play(uri: string) {
-    this.http
-      .put(
-        'https://api.spotify.com/v1/me/player/play?device_id=' + this.deviceId,
-        {
-          deviceId: this.deviceId,
-          context_uri: uri,
-        },
-        {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + this.auth.getAccessToken(),
-          }),
-        },
-      )
-      .subscribe((response) => {
-        console.log(response);
-      });
+    this.put(
+      `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
+      {
+        context_uri: uri,
+      },
+    ).subscribe((response) => {
+      this.playMusic = true;
+      this.playing = true;
+      this.playingUrl = uri;
+      console.log({ response });
+    });
+  }
+
+  changeVolume() {
+    this.put(
+      `https://api.spotify.com/v1/me/player/volume?volume_percent=${this.volume}&device_id=${this.deviceId}`,
+      { volume_percent: this.volume, device_id: this.deviceId },
+    ).subscribe((res) => {
+      console.log(res);
+    });
   }
 }

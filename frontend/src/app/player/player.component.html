@@ -1,4 +1,15 @@
-<input type="text" [(ngModel)]="searchText"> <button (click)="search()">search</button>
+<input class="border-b-black border-b-2" placeholder="曲名..." type="text" [(ngModel)]="searchText" (keydown.enter)="search()"><button (click)="search()">検索</button>
+<ng-container *ngIf="playMusic">
+  <input type="button" (click)="pause()" id="pause">
+  <label for="pause">
+    <ng-container *ngIf="this.playing">■</ng-container>
+    ︎<ng-container *ngIf="!this.playing">▶︎</ng-container>
+    ︎</label>
+  <input type="range" min="0" max="100" [(ngModel)]="volume" (change)="changeVolume()"> volume
+</ng-container>
 <ul>
-  <li *ngFor="let item of searchItems" ><button (click)="play(item.uri)">{{item.name}}</button></li>
+  <li class="w-full" *ngFor="let item of searchItems" ><button (click)="play(item.uri)">
+    <img src="{{item.images[2].url}}">{{item.name}}
+  </button></li>
 </ul>
+

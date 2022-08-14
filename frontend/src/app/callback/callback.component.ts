@@ -18,7 +18,6 @@ export class CallbackComponent implements OnInit {
     this.route.url.subscribe(() => {
       const queries = this.route.snapshot.fragment?.split('&');
 
-      console.log(queries);
       const accessTokenQuery = queries?.find((query) => {
         return query.indexOf('access_token') !== -1;
       });
