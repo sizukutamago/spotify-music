@@ -6,7 +6,7 @@
     <div class="w-full block flex-grow flex items-center w-auto">
       <div class="text-sm flex-grow"></div>
       <ng-container *ngIf="!auth.isAuthenticated()">
-        <a class="mr-6" href="https://accounts.spotify.com/authorize?client_id=c48c47f5403e4409bcfe36f3c117d852&response_type=token&redirect_uri=http://localhost:4200/player/callback&state=aaa&scope=streaming+user-read-email+user-modify-playback-state+user-read-private+user-read-playback-state&show_dialog=true">spotify login</a>
+        <a class="mr-6" href="{{redirectUrl}}">spotify login</a>
       </ng-container>
       <ng-container *ngIf="auth.isAuthenticated()">
         <button (click)="auth.logout();route.navigate([''])">logout</button>
