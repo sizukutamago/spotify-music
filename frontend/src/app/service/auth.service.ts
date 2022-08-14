@@ -16,6 +16,9 @@ export class AuthService {
 
   saveAccessToken(accessToken: string): void {
     localStorage.setItem('access_token', accessToken);
+    const now = new Date();
+    const expire = now.setMinutes(now.getMinutes() + 30);
+    localStorage.setItem('expire_at', expire.toString());
   }
 
   login(accessToken: string) {
@@ -28,7 +31,17 @@ export class AuthService {
     this.accessToken = null;
   }
 
-  isAuthenticated() {
-    return !!this.getAccessToken();
+  isAuthenticated(): boolean {
+    if (!this.getAccessToken()) {
+      return false;
+    }
+
+    const expire = localStorage.getItem('expire_at');
+    if (!expire) {
+      return false;
+    }
+
+    const now = new Date().getTime();
+    return now < parseInt(expire);
   }
 }

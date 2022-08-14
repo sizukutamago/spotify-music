@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../service/auth.service';
 
@@ -29,43 +28,11 @@ export class PlayerComponent implements OnInit {
   // @ts-ignore
   public searchItems: [{ name: string; uri: string }] = [];
 
-  constructor(
-    private router: ActivatedRoute,
-    private http: HttpClient,
-    public auth: AuthService,
-  ) {}
+  constructor(private http: HttpClient, public auth: AuthService) {}
 
   ngOnInit(): void {
-    this.router.url.subscribe(() => {
-      const queries = this.router.snapshot.fragment?.split('&');
-
-      const accessTokenQuery = queries?.find((query) => {
-        return query.indexOf('access_token') !== -1;
-      });
-
-      if (!accessTokenQuery) {
-        return;
-      }
-
-      const accessTokenParam = accessTokenQuery.split('=');
-      const accessToken = accessTokenParam[1];
-      this.auth.login(accessToken);
-      this.addSpotifyPlaybackSdk();
-
-      // this.getAccessToken(
-      //   this.router.snapshot.fragment?.split('=')[1] as string,
-      // );
-    });
+    this.addSpotifyPlaybackSdk();
   }
-
-  // getAccessToken(code: string) {
-  //   this.http
-  //     .post<{ access_token: string }>('http://localhost:3000/spotify', { code })
-  //     .subscribe((response) => {
-  //       console.log(response);
-  //       this.auth.login(response.access_token);
-  //     });
-  // }
 
   addSpotifyPlaybackSdk() {
     const script = document.createElement('script');
