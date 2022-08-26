@@ -10,6 +10,6 @@ import { Router } from '@angular/router';
 export class AppComponent {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  public redirectUrl = `https://accounts.spotify.com/authorize?client_id=c48c47f5403e4409bcfe36f3c117d852&response_type=token&redirect_uri=https://melodic-crumble-e4102f.netlify.app/player/callback&state=aaa&scope=streaming+user-read-email+user-modify-playback-state+user-read-private+user-read-playback-state&show_dialog=true`;
+  public redirectUrl = `https://accounts.spotify.com/authorize?client_id=c48c47f5403e4409bcfe36f3c117d852&response_type=token&redirect_uri=http://localhost:4200/player/callback&state=aaa&scope=streaming+user-read-email+user-modify-playback-state+user-read-private+user-read-playback-state+user-read-currently-playing+user-read-recently-played&show_dialog=true`;
   constructor(public auth: AuthService, public route: Router) {}
 }

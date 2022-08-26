@@ -27,7 +27,11 @@ export class PlayerComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   public searchItems: [
-    { name: string; uri: string; images: { url: string }[] },
+    {
+      name: string;
+      uri: string;
+      album: { images: { url: string }[]; uri: string };
+    },
   ] = [];
 
   public playMusic = false;
@@ -39,6 +43,8 @@ export class PlayerComponent implements OnInit {
   public playing = false;
 
   private playingUrl = '';
+
+  private audioContext = new AudioContext();
 
   constructor(private http: HttpClient, public auth: AuthService) {}
 
@@ -54,7 +60,6 @@ export class PlayerComponent implements OnInit {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     window.onSpotifyWebPlaybackSDKReady = () => {
-      // console.log(window.Spotify.Player);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       this.player = new Spotify.Player({
@@ -71,36 +76,55 @@ export class PlayerComponent implements OnInit {
         this.deviceId = data.device_id;
       });
 
-      this.player.connect().then((res: any) => {
-        console.log({ res });
+      this.player.connect().then((connect: any) => {
+        console.log({ connect });
       });
     };
+
+    window.onload = () => {
+      this.audioContext.resume();
+    };
+  }
+
+  getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + this.auth.getAccessToken(),
+    });
   }
 
   put(url: string, body: object) {
     return this.http.put(url, body, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + this.auth.getAccessToken(),
-      }),
+      headers: this.getHeaders(),
+    });
+  }
+
+  post(url: string, body: object) {
+    return this.http.post(url, body, {
+      headers: this.getHeaders(),
     });
   }
 
   get(url: string) {
     return this.http.get(url, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + this.auth.getAccessToken(),
-      }),
+      headers: this.getHeaders(),
+    });
+  }
+
+  queue(uri: string) {
+    this.post(
+      `https://api.spotify.com/v1/me/player/queue?uri=${uri}`,
+      {},
+    ).subscribe(() => {
+      this.get(`https://api.spotify.com/v1/me/player?market=JP`).subscribe();
     });
   }
 
   search() {
     this.get(
-      `https://api.spotify.com/v1/search?type=album&include_external=audio&q=${this.searchText}&market=JP`,
+      `https://api.spotify.com/v1/search?type=track&include_external=audio&q=${this.searchText}&market=JP`,
     ).subscribe((response: any) => {
-      console.log(response);
-      this.searchItems = response.albums.items;
+      this.searchItems = response.tracks.items;
     });
   }
 
@@ -109,8 +133,7 @@ export class PlayerComponent implements OnInit {
       this.put(
         `https://api.spotify.com/v1/me/player/pause?device_id=${this.deviceId}`,
         {},
-      ).subscribe((response) => {
-        console.log('ss');
+      ).subscribe(() => {
         this.playing = false;
       });
 
@@ -120,30 +143,26 @@ export class PlayerComponent implements OnInit {
         },
       );
     } else {
-      this.put(
-        `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
-        {
-          position_ms: this.position_ms,
-          context_uri: this.playingUrl,
-        },
-      ).subscribe((res) => {
-        console.log('res');
-      });
+      this.play(this.playingUrl, this.position_ms);
       this.playing = true;
     }
   }
 
-  play(uri: string) {
+  playlists() {
+    this.get(`https://api.spotify.com/v1/me/playlists`).subscribe();
+  }
+
+  play(uri: string, positionMs = 0) {
     this.put(
       `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
       {
         context_uri: uri,
+        position_ms: positionMs,
       },
-    ).subscribe((response) => {
+    ).subscribe(() => {
       this.playMusic = true;
       this.playing = true;
       this.playingUrl = uri;
-      console.log({ response });
     });
   }
 
@@ -151,8 +170,6 @@ export class PlayerComponent implements OnInit {
     this.put(
       `https://api.spotify.com/v1/me/player/volume?volume_percent=${this.volume}&device_id=${this.deviceId}`,
       { volume_percent: this.volume, device_id: this.deviceId },
-    ).subscribe((res) => {
-      console.log(res);
-    });
+    ).subscribe();
   }
 }

@@ -8,8 +8,8 @@
   <input type="range" min="0" max="100" [(ngModel)]="volume" (change)="changeVolume()"> volume
 </ng-container>
 <ul>
-  <li class="w-full" *ngFor="let item of searchItems" ><button (click)="play(item.uri)">
-    <img src="{{item.images[2].url}}">{{item.name}}
+  <li class="w-full" *ngFor="let item of searchItems" ><button (click)="play(item.album.uri)">
+    <img src="{{item.album.images[2].url}}">{{item.name}}
   </button></li>
 </ul>
 
