@@ -326,3 +326,5 @@ fabric.properties
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,webstorm+all,git,node,angular,yarn
+backend/src/test.crt
+backend/src/test.key
